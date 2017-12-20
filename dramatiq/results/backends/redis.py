@@ -1,4 +1,4 @@
-import json
+import pickle
 import redis
 
 from ..backend import ResultBackend, Missing
@@ -24,10 +24,10 @@ class RedisBackend(ResultBackend):
     def _get(self, message_key):
         data = self.client.get(message_key)
         if data is not None:
-            return json.loads(data.decode("utf-8"))
+            return pickle.loads(data.decode("utf-8"))
         return Missing
 
     def _store(self, message_key, result, ttl):
-        result_data = json.dumps(result, separators=(",", ":")).encode("utf-8")
+        result_data = pickle.dumps(result, separators=(",", ":")).encode("utf-8")
         expiration = int(ttl / 1000)
         self.client.setex(message_key, expiration, result_data)
